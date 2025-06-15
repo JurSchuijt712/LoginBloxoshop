@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Discord Server Panel</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #2c2f33;
+      color: #ddd;
+      display: flex;
+      height: 100vh;
+    }
+
+    nav {
+      width: 240px;
+      background: linear-gradient(180deg, #23272a, #2c2f33);
+      padding: 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.4);
+    }
+
+    nav h2 {
+      color: #fff;
+      font-size: 1.2em;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    nav ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    nav ul li {
+      margin-bottom: 5px;
+    }
+
+    nav ul li > a {
+      color: #99aab5;
+      text-decoration: none;
+      font-weight: 600;
+      display: block;
+      padding: 10px 14px;
+      border-radius: 6px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    nav ul li.active > a,
+    nav ul li > a:hover {
+      background-color: #7289da;
+      color: white;
+    }
+
+    nav ul li ul {
+      margin-top: 5px;
+      margin-left: 10px;
+    }
+
+    nav ul li ul li a {
+      font-weight: normal;
+      font-size: 0.9em;
+      color: #b9bbbe;
+      padding-left: 10px;
+      border-radius: 4px;
+    }
+
+    nav ul li ul li a:hover {
+      background: rgba(114,137,218,0.2);
+      color: #7289da;
+    }
+
+    main {
+      flex: 1;
+      padding: 40px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    section {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+      color: #fff;
+      font-weight: 700;
+      border-bottom: 2px solid #7289da;
+      padding-bottom: 4px;
+      margin-bottom: 10px;
+    }
+
+    ul.admin-list {
+      padding-left: 20px;
+    }
+
+    ul.admin-list li {
+      padding: 4px 0;
+    }
+
+    #uptimeDisplay, #memberCount, #banCount, #KickCount, #admins{
+      font-size: 1.2em;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <h2>Discord Panel</h2>
+    <ul>
+      <li class="active">
+        <a href="#">Menu</a>
+        <ul>
+          <li><a href="#info">Server Information</a></li>
+          <li><a href="#admins">Admin List</a></li>
+          <li><a href="#uptime">Server Uptime</a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+
+  <main>
+    <section id="info">
+      <h1>Server Information</h1>
+      <p id="memberCount">Loading member count...</p>
+      <p id="banCount">Loading banned members...</p>
+      <p id="KickCount">Loading kicked people...</p>
+    </section>
+
+    <section id="admins">
+      <h1>Admin List</h1>
+      <ul class="admin-list">
+        <li>jur0360_53536 — Founder/Owner</li>
+        <li>v2_eco, marc_mats0491, cookierblxyt — Co-Owners/Founders</li>
+        <li>jur0360_53536, dev_takover — Developer</li>
+      </ul>
+    </section>
+
+    <section id="uptime">
+      <h1>Server Uptime</h1>
+      <p id="uptimeDisplay">Loading uptime...</p>
+    </section>
+  </main>
+
+  <script>
+    async function fetchMemberCount() {
+      try {
+        const res = await fetch("https://discord.com/api/guilds/1285341049547657278/widget.json");
+        if (!res.ok) throw new Error("Unable to fetch server info");
+        const data = await res.json();
+        document.getElementById("memberCount").innerText = `Members Online: ${data.presence_count}`;
+      } catch (err) {
+        document.getElementById("memberCount").innerText = "Could not load member count.";
+        console.error(err);
+      }
+    }
+
+    function fetchBanCount() {
+      const banCount = 3;
+      document.getElementById("banCount").innerText = `Banned members: ${banCount}`;
+    }
+        function fetchKickCount() {
+      const KickCount = 5;
+      document.getElementById("KickCount").innerText = `Kicked members: ${KickCount}`;
+    }
+
+    function formatUptime(ms) {
+      let totalSeconds = Math.floor(ms / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      totalSeconds %= 86400;
+      const hours = Math.floor(totalSeconds / 3600);
+      totalSeconds %= 3600;
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    const serverStartTime = new Date("2025-06-14T14:00:00Z");
+
+    function updateUptime() {
+      const now = new Date();
+      const diff = now - serverStartTime;
+      document.getElementById("uptimeDisplay").innerText = `Server online for: ${formatUptime(diff)}`;
+    }
+
+    // Init
+    fetchMemberCount();
+    fetchBanCount();
+    fetchKickCount();
+    updateUptime();
+
+    // Intervals
+    setInterval(fetchMemberCount, 30000);
+    setInterval(updateUptime, 1000);
+  </script>
+
+</body>
+</html>
